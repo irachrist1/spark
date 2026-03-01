@@ -43,6 +43,12 @@ export interface MentorApplicationEmail {
   applicationId: string;
 }
 
+export interface MentorApplicationStatusEmail {
+  to: string;
+  applicantName: string;
+  status: "approved" | "rejected";
+}
+
 /**
  * Send booking confirmation email to student
  */
@@ -254,6 +260,75 @@ export async function sendMentorApplicationNotification(data: MentorApplicationE
     return { success: true, messageId: result?.id };
   } catch (error) {
     console.error('Error sending mentor application notification:', error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Send mentor application status update to applicant
+ */
+export async function sendMentorApplicationStatusNotification(
+  data: MentorApplicationStatusEmail
+) {
+  const isApproved = data.status === "approved";
+  const subject = isApproved
+    ? "Your Mentor Application Has Been Approved"
+    : "Update on Your Mentor Application";
+  const heading = isApproved ? "🎉 Application Approved" : "Application Update";
+  const message = isApproved
+    ? "Congratulations! Your mentor application has been approved. You can now complete your mentor profile and start receiving student booking requests."
+    : "Thank you for applying. After review, we are unable to approve your application at this time.";
+
+  try {
+    const { data: result, error } = await getResend().emails.send({
+      from: FROM_EMAIL,
+      to: data.to,
+      subject,
+      html: `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <style>
+              body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+              .header { background: ${isApproved ? "#95E1D3" : "#FFD3B6"}; color: #000; padding: 20px; text-align: center; border: 3px solid #000; }
+              .content { background: #fff; padding: 30px; border: 3px solid #000; margin-top: -3px; }
+              .button { display: inline-block; background: #FFB627; color: #000; padding: 12px 30px; text-decoration: none; font-weight: bold; border: 3px solid #000; margin-top: 20px; }
+              .footer { text-align: center; margin-top: 20px; color: #666; font-size: 14px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1 style="margin: 0; font-size: 28px;">${heading}</h1>
+              </div>
+              <div class="content">
+                <p>Hi ${data.applicantName},</p>
+                <p>${message}</p>
+                ${
+                  isApproved
+                    ? `<a href="${process.env.NEXT_PUBLIC_APP_URL || "https://spark.rw"}/dashboard/mentor" class="button">Go to Mentor Dashboard</a>`
+                    : ""
+                }
+                <p style="margin-top: 30px;">Best regards,<br>The Spark Team</p>
+              </div>
+              <div class="footer">
+                <p>This email was sent from Spark Learning Platform</p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `,
+    });
+
+    if (error) {
+      console.error("Failed to send mentor application status email:", error);
+      return { success: false, error };
+    }
+
+    return { success: true, messageId: result?.id };
+  } catch (error) {
+    console.error("Error sending mentor application status email:", error);
     return { success: false, error };
   }
 }

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useConvexAuth } from './useConvexAuth';
 
-type UserRole = 'student' | 'mentor' | 'educator' | 'company' | 'partner';
+type UserRole = 'student' | 'mentor' | 'educator' | 'company' | 'partner' | 'admin';
 
 /**
  * Hook to protect pages based on user role
@@ -42,6 +42,9 @@ export function useRoleGuard(allowedRoles: UserRole[]) {
         case 'partner':
           router.push('/dashboard/partner');
           break;
+        case 'admin':
+          router.push('/dashboard/admin');
+          break;
         default:
           router.push('/');
       }
@@ -66,6 +69,8 @@ export function getDashboardPath(role: UserRole): string {
       return '/dashboard/company';
     case 'partner':
       return '/dashboard/partner';
+    case 'admin':
+      return '/dashboard/admin';
     default:
       return '/';
   }

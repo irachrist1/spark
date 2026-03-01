@@ -14,6 +14,7 @@ import {
 
 export default function AdminAnalyticsPage() {
   const stats = useQuery(api.admin.getDashboardStats);
+  const pilotKpis = useQuery(api.analytics.getPilotKpis, { days: 14 });
 
   if (stats === undefined) {
     return (
@@ -220,6 +221,46 @@ export default function AdminAnalyticsPage() {
           />
         </div>
       </div>
+
+      {/* Pilot Funnel Metrics */}
+      {pilotKpis && (
+        <div className="mt-8">
+          <h2 className="text-2xl font-black uppercase mb-4 flex items-center gap-2">
+            <Target className="w-6 h-6" />
+            Pilot Funnel (Last {pilotKpis.rangeDays} Days)
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <MetricCard
+              title="Assessment Completion"
+              value={`${pilotKpis.rates.assessmentCompletionRate}%`}
+              subtitle={`${pilotKpis.totals.assessmentCompleted}/${pilotKpis.totals.assessmentStarted}`}
+              icon={TrendingUp}
+              color="bg-brutal-green"
+            />
+            <MetricCard
+              title="Results View Rate"
+              value={`${pilotKpis.rates.resultsViewRate}%`}
+              subtitle={`${pilotKpis.totals.resultsViewed} viewed`}
+              icon={BarChart3}
+              color="bg-brutal-blue"
+            />
+            <MetricCard
+              title="Quiz Completion"
+              value={`${pilotKpis.rates.quizCompletionRate}%`}
+              subtitle={`${pilotKpis.totals.quizCompleted}/${pilotKpis.totals.quizStarted}`}
+              icon={Target}
+              color="bg-brutal-purple"
+            />
+            <MetricCard
+              title="Booking Confirmation"
+              value={`${pilotKpis.rates.bookingConfirmationRate}%`}
+              subtitle={`${pilotKpis.totals.bookingsConfirmed}/${pilotKpis.totals.bookingsRequested}`}
+              icon={Calendar}
+              color="bg-brutal-orange"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

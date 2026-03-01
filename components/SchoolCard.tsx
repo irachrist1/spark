@@ -5,34 +5,10 @@ import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import type { Id } from "@/convex/_generated/dataModel";
-
-interface School {
-  _id: Id<"schools">;
-  name: string;
-  type: string;
-  location: {
-    city: string;
-    district: string;
-  };
-  partnershipTier: "featured" | "partner" | "listed";
-  programsOffered: Array<{
-    name: string;
-    duration: string;
-    tuitionPerYear: number;
-    careerIds: Id<"careers">[];
-  }>;
-  description: string;
-  logo?: string;
-  website?: string;
-  accreditation?: string;
-  establishedYear?: number;
-  studentCount?: number;
-  scholarshipInfo?: string;
-}
+import type { SchoolSummary } from "@/lib/dtos";
 
 interface SchoolCardProps {
-  school: School;
+  school: SchoolSummary;
   program?: string;
   compact?: boolean;
   showCTA?: boolean;
@@ -249,4 +225,3 @@ export function SchoolCard({ school, program, compact = false, showCTA = true }:
     </Card>
   );
 }
-

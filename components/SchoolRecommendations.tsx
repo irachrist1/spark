@@ -3,35 +3,10 @@
 import { GraduationCap, ArrowRight } from "lucide-react";
 import { SchoolCard } from "./SchoolCard";
 import Link from "next/link";
-import type { Id } from "@/convex/_generated/dataModel";
-
-interface School {
-  _id: Id<"schools">;
-  name: string;
-  type: string;
-  location: {
-    city: string;
-    district: string;
-  };
-  partnershipTier: "featured" | "partner" | "listed";
-  programsOffered: Array<{
-    name: string;
-    duration: string;
-    tuitionPerYear: number;
-    careerIds: Id<"careers">[];
-  }>;
-  description: string;
-  logo?: string;
-  website?: string;
-  accreditation?: string;
-  establishedYear?: number;
-  studentCount?: number;
-  featured: boolean;
-  clickCount: number;
-}
+import type { SchoolSummary } from "@/lib/dtos";
 
 interface SchoolRecommendationsProps {
-  schools: School[];
+  schools: SchoolSummary[];
   title?: string;
   careerId?: string;
   maxDisplay?: number;
@@ -74,6 +49,7 @@ export function SchoolRecommendations({
 
   const displaySchools = sortedSchools.slice(0, maxDisplay);
   const hasMore = schools.length > maxDisplay;
+  const schoolsHref = careerId ? `/schools?careerId=${careerId}` : "/schools";
 
   // Separate featured schools for highlighting
   const featuredSchools = displaySchools.filter(s => s.partnershipTier === "featured");
@@ -88,7 +64,7 @@ export function SchoolRecommendations({
           <h3 className="text-2xl font-black uppercase">{title}</h3>
         </div>
         {showViewAll && hasMore && (
-          <Link href="/schools" className="hidden md:block">
+          <Link href={schoolsHref} className="hidden md:block">
             <button className="px-4 py-2 bg-white border-2 border-black shadow-brutal-sm hover:shadow-brutal transition-all font-bold text-sm uppercase flex items-center gap-2">
               View All {schools.length} <ArrowRight className="w-4 h-4" />
             </button>
@@ -141,7 +117,7 @@ export function SchoolRecommendations({
       {/* View All Button (Mobile) */}
       {showViewAll && hasMore && (
         <div className="md:hidden text-center">
-          <Link href="/schools">
+          <Link href={schoolsHref}>
             <button className="w-full px-6 py-3 bg-white border-2 border-black shadow-brutal hover:shadow-brutal-lg transition-all font-bold text-sm uppercase flex items-center justify-center gap-2">
               View All {schools.length} Schools <ArrowRight className="w-4 h-4" />
             </button>
@@ -159,4 +135,3 @@ export function SchoolRecommendations({
     </div>
   );
 }
-

@@ -51,6 +51,19 @@ export const saveResult = mutation({
       completedAt: Date.now(),
     });
 
+    const user = await ctx.db.get(userId);
+    await ctx.db.insert("analyticsEvents", {
+      eventName: "reality_quiz_completed",
+      actorUserId: userId,
+      actorRole: user?.role,
+      metadata: {
+        careerId: args.careerId,
+        resultId,
+        readinessPercentage: args.readinessPercentage,
+      },
+      createdAt: Date.now(),
+    });
+
     return { resultId };
   },
 });

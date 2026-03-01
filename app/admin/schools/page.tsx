@@ -25,7 +25,7 @@ export default function AdminSchoolsPage() {
   const [showInactive, setShowInactive] = useState(false);
 
   // Fetch schools and analytics
-  const schools = useQuery(api.schools.list, { activeOnly: !showInactive });
+  const schools = useQuery(api.schools.listAdmin, { activeOnly: showInactive ? undefined : true });
   const analytics = useQuery(api.schools.getAnalytics, {});
 
   // Mutations
@@ -325,4 +325,3 @@ export default function AdminSchoolsPage() {
     </div>
   );
 }
-

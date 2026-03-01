@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { 
   sendBookingConfirmation, 
   sendBookingReminder,
-  sendMentorApplicationNotification 
+  sendMentorApplicationNotification,
+  sendMentorApplicationStatusNotification
 } from '@/lib/emails/resend';
 
 // Verify the request is from Convex using a shared secret
@@ -63,6 +64,22 @@ export async function POST(request: NextRequest) {
           to: data.to,
           applicantName: data.applicantName,
           applicationId: data.applicationId,
+        });
+        break;
+
+      case 'mentor_application_approved':
+        result = await sendMentorApplicationStatusNotification({
+          to: data.to,
+          applicantName: data.applicantName,
+          status: 'approved',
+        });
+        break;
+
+      case 'mentor_application_rejected':
+        result = await sendMentorApplicationStatusNotification({
+          to: data.to,
+          applicantName: data.applicantName,
+          status: 'rejected',
         });
         break;
 

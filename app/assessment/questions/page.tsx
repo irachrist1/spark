@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { useQuery, useMutation } from "convex/react";
@@ -18,6 +18,34 @@ export default function AssessmentQuestionsPage() {
   const assessments = useQuery(api.assessments.list);
   const allCareers = useQuery(api.careers.list);
   const saveResult = useMutation(api.assessments.saveResult);
+  const trackEvent = useMutation(api.analytics.trackEvent);
+
+  const assessment =
+    assessments && assessments.length > 0
+      ? assessments.reduce((latest, current) =>
+          current.questionCount > latest.questionCount ? current : latest
+        )
+      : null;
+  const questions = assessment?.questions ?? [];
+  const assessmentId = assessment?._id;
+  const assessmentQuestionCount = assessment?.questionCount ?? 0;
+  const isAssessmentMalformed = assessment
+    ? assessment.questionCount !== 25 || !Array.isArray(questions) || questions.length < 25
+    : false;
+
+  useEffect(() => {
+    if (!assessmentId || isAssessmentMalformed) {
+      return;
+    }
+
+    void trackEvent({
+      eventName: "assessment_started",
+      metadata: {
+        assessmentId,
+        questionCount: assessmentQuestionCount,
+      },
+    });
+  }, [assessmentId, assessmentQuestionCount, isAssessmentMalformed, trackEvent]);
 
   if (assessments === undefined || allCareers === undefined) {
     return (
@@ -50,11 +78,35 @@ export default function AssessmentQuestionsPage() {
     );
   }
 
-  // Use the assessment with the most questions (should be the 12-question RIASEC one)
-  const assessment = assessments.reduce((latest, current) => 
-    current.questionCount > latest.questionCount ? current : latest
-  );
-  const questions = assessment.questions;
+  if (!assessment) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center">
+          <p className="text-xl font-bold text-gray-700">No assessment available</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isAssessmentMalformed) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center max-w-xl">
+          <h2 className="text-2xl font-black mb-4">Assessment Unavailable</h2>
+          <p className="text-gray-700 font-bold mb-6">
+            The assessment definition is out of sync. Please refresh your data setup and try again.
+          </p>
+          <button
+            onClick={() => router.push('/assessments')}
+            className="px-6 py-3 bg-primary text-white font-bold uppercase border-3 border-black shadow-brutal"
+          >
+            Back to Assessments
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const totalQuestions = questions.length;
   const progress = ((currentQuestion + 1) / totalQuestions) * 100;
 

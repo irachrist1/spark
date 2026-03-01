@@ -93,6 +93,16 @@ export const toggle = mutation({
         savedAt: Date.now(),
       });
 
+      await ctx.db.insert("analyticsEvents", {
+        eventName: "career_saved",
+        actorUserId: user._id,
+        actorRole: user.role,
+        metadata: {
+          careerId: args.careerId,
+        },
+        createdAt: Date.now(),
+      });
+
       // Increment career saves count
       const career = await ctx.db.get(args.careerId as any);
       if (career && 'saves' in career) {

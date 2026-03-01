@@ -1,10 +1,12 @@
 import { v } from "convex/values";
-import { mutation, query, QueryCtx } from "./_generated/server";
+import { mutation, query, QueryCtx, MutationCtx } from "./_generated/server";
 
 /**
  * Get the current authenticated user from Clerk
  */
-export async function getCurrentUser(ctx: QueryCtx) {
+type UserCtx = QueryCtx | MutationCtx;
+
+export async function getCurrentUser(ctx: UserCtx) {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) {
     return null;
@@ -22,10 +24,21 @@ export async function getCurrentUser(ctx: QueryCtx) {
 /**
  * Get the current user's ID (throws if not authenticated)
  */
-export async function getCurrentUserOrThrow(ctx: QueryCtx) {
+export async function getCurrentUserOrThrow(ctx: UserCtx) {
   const user = await getCurrentUser(ctx);
   if (!user) {
     throw new Error("User not authenticated");
+  }
+  return user;
+}
+
+/**
+ * Require the current user to be an admin.
+ */
+export async function requireAdminOrThrow(ctx: UserCtx) {
+  const user = await getCurrentUserOrThrow(ctx);
+  if (user.role !== "admin") {
+    throw new Error("Unauthorized: Admin access required");
   }
   return user;
 }

@@ -10,12 +10,14 @@
 
 import type * as admin from "../admin.js";
 import type * as adminUtils from "../adminUtils.js";
+import type * as analytics from "../analytics.js";
 import type * as articles from "../articles.js";
 import type * as assessments from "../assessments.js";
 import type * as availabilitySlots from "../availabilitySlots.js";
 import type * as bulkOperations from "../bulkOperations.js";
 import type * as careerChats from "../careerChats.js";
 import type * as careers from "../careers.js";
+import type * as contact from "../contact.js";
 import type * as earnings from "../earnings.js";
 import type * as educators from "../educators.js";
 import type * as emails from "../emails.js";
@@ -66,12 +68,14 @@ import type {
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   adminUtils: typeof adminUtils;
+  analytics: typeof analytics;
   articles: typeof articles;
   assessments: typeof assessments;
   availabilitySlots: typeof availabilitySlots;
   bulkOperations: typeof bulkOperations;
   careerChats: typeof careerChats;
   careers: typeof careers;
+  contact: typeof contact;
   earnings: typeof earnings;
   educators: typeof educators;
   emails: typeof emails;

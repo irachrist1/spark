@@ -10,7 +10,9 @@ export const sendEmail = internalAction({
     type: v.union(
       v.literal("booking_confirmation"),
       v.literal("booking_reminder"),
-      v.literal("mentor_application")
+      v.literal("mentor_application"),
+      v.literal("mentor_application_approved"),
+      v.literal("mentor_application_rejected")
     ),
     data: v.any(),
   },

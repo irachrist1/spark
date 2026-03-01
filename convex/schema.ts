@@ -703,4 +703,40 @@ export default defineSchema({
     .index("by_tier", ["partnershipTier"])
     .index("by_featured", ["featured", "partnershipTier"])
     .index("by_active", ["isActive"]),
+
+  // Contact form submissions from public site
+  contactSubmissions: defineTable({
+    name: v.string(),
+    email: v.string(),
+    category: v.string(),
+    message: v.string(),
+    status: v.union(
+      v.literal("new"),
+      v.literal("reviewed"),
+      v.literal("closed")
+    ),
+    createdAt: v.number(),
+    reviewedAt: v.optional(v.number()),
+  })
+    .index("by_created", ["createdAt"])
+    .index("by_status", ["status"]),
+
+  // Product analytics events for funnel monitoring
+  analyticsEvents: defineTable({
+    eventName: v.string(),
+    actorUserId: v.optional(v.id("users")),
+    actorRole: v.optional(v.union(
+      v.literal("student"),
+      v.literal("mentor"),
+      v.literal("educator"),
+      v.literal("company"),
+      v.literal("partner"),
+      v.literal("admin")
+    )),
+    metadata: v.optional(v.any()),
+    createdAt: v.number(),
+  })
+    .index("by_event", ["eventName"])
+    .index("by_created", ["createdAt"])
+    .index("by_event_and_created", ["eventName", "createdAt"]),
 });

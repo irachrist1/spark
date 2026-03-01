@@ -3,25 +3,7 @@
 import { DollarSign, Clock, GraduationCap, Info, AlertCircle, Sparkles } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
-
-interface School {
-  _id: string;
-  name: string;
-  type: string;
-  location: {
-    city: string;
-    district: string;
-  };
-  partnershipTier: "featured" | "partner" | "listed";
-  programsOffered: Array<{
-    name: string;
-    duration: string;
-    tuitionPerYear: number;
-    careerIds: string[];
-  }>;
-  logo?: string;
-  website?: string;
-}
+import type { SchoolSummary } from "@/lib/dtos";
 
 interface CostStage {
   stage: string;
@@ -29,7 +11,7 @@ interface CostStage {
   costMin: number;
   costMax: number;
   description: string;
-  schools?: School[];
+  schools?: SchoolSummary[];
 }
 
 interface AdditionalCosts {
@@ -302,4 +284,3 @@ export function CostBreakdown({
     </div>
   );
 }
-

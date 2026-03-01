@@ -26,6 +26,7 @@ import { useConvexAuth } from "@/lib/hooks/useConvexAuth";
 import { SalaryCalculator } from "@/components/SalaryCalculator";
 import { CostBreakdown } from "@/components/CostBreakdown";
 import { SchoolRecommendations } from "@/components/SchoolRecommendations";
+import { RealityQuiz } from "@/components/RealityQuiz";
 
 export default function CareerDetailPage() {
   const params = useParams();
@@ -36,7 +37,7 @@ export default function CareerDetailPage() {
   const [showVideo, setShowVideo] = useState(false);
 
   // Fetch career from Convex
-  const career = useQuery(api.careers.getById, { id: careerId as any });
+  const career = useQuery(api.careers.getByIdWithSchools, { id: careerId as any });
   const bookmarkedIds = useQuery(api.savedCareers.getIds, user ? {} : "skip");
   const toggleBookmark = useMutation(api.savedCareers.toggle);
 
@@ -237,6 +238,20 @@ export default function CareerDetailPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Reality Quiz */}
+        {career.realityQuiz && (
+          <div className="mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">
+              Reality Check Quiz
+            </h2>
+            <RealityQuiz
+              quiz={career.realityQuiz}
+              careerId={career._id}
+              careerTitle={career.title}
+            />
+          </div>
+        )}
 
         {/* Required Skills */}
         <div className="mb-8 sm:mb-10 md:mb-12">

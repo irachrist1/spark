@@ -1,5 +1,23 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import type { Doc, Id } from "./_generated/dataModel";
+
+const tierOrder: Record<"featured" | "partner" | "listed", number> = {
+  featured: 0,
+  partner: 1,
+  listed: 2,
+};
+
+function isSchoolDocument(doc: unknown): doc is Doc<"schools"> {
+  return (
+    doc !== null &&
+    typeof doc === "object" &&
+    "name" in doc &&
+    "programsOffered" in doc &&
+    "partnershipTier" in doc &&
+    "isActive" in doc
+  );
+}
 
 // Get all careers
 export const list = query({
@@ -142,14 +160,13 @@ export const getByIdWithSchools = query({
       career.costAnalysis.breakdown.map(async (stage) => {
         const schools = await Promise.all(
           stage.schoolIds.map(async (id) => {
-            const school = await ctx.db.get(id);
-            return school;
+            return await ctx.db.get(id);
           })
         );
         
         return {
           ...stage,
-          schools: schools.filter(s => s !== null),
+          schools: schools.filter(isSchoolDocument),
         };
       })
     );
@@ -178,14 +195,13 @@ export const getByIdsWithSchools = query({
           career.costAnalysis.breakdown.map(async (stage) => {
             const schools = await Promise.all(
               stage.schoolIds.map(async (schoolId) => {
-                const school = await ctx.db.get(schoolId);
-                return school;
+                return await ctx.db.get(schoolId);
               })
             );
             
             return {
               ...stage,
-              schools: schools.filter(s => s !== null),
+              schools: schools.filter(isSchoolDocument),
             };
           })
         );
@@ -208,7 +224,7 @@ export const getByIdsWithSchools = query({
 export const getSchoolsForCareers = query({
   args: { careerIds: v.array(v.id("careers")) },
   handler: async (ctx, args) => {
-    const allSchoolIds = new Set<string>();
+    const allSchoolIds = new Set<Id<"schools">>();
     
     // Collect all unique school IDs from all careers
     for (const careerId of args.careerIds) {
@@ -216,7 +232,7 @@ export const getSchoolsForCareers = query({
       if (career?.costAnalysis) {
         for (const stage of career.costAnalysis.breakdown) {
           for (const schoolId of stage.schoolIds) {
-            allSchoolIds.add(schoolId as any);
+            allSchoolIds.add(schoolId);
           }
         }
       }
@@ -224,16 +240,17 @@ export const getSchoolsForCareers = query({
     
     // Fetch all unique schools
     const schools = await Promise.all(
-      Array.from(allSchoolIds).map(id => ctx.db.get(id as any))
+      Array.from(allSchoolIds).map((id) => ctx.db.get(id))
     );
     
     // Sort by tier: featured > partner > listed
-    const validSchools = schools.filter(s => s !== null && s.isActive);
+    const validSchools = schools.filter(
+      (school): school is Doc<"schools"> => isSchoolDocument(school) && school.isActive
+    );
     return validSchools.sort((a, b) => {
-      const tierOrder = { featured: 0, partner: 1, listed: 2 };
       const aTier = tierOrder[a.partnershipTier];
       const bTier = tierOrder[b.partnershipTier];
-      
+
       if (aTier !== bTier) return aTier - bTier;
       return b.clickCount - a.clickCount;
     });

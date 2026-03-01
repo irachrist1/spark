@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
+import { requireAdminOrThrow } from "./users";
 
 // Submit a new mentor application
 export const submit = mutation({
@@ -78,6 +79,7 @@ export const checkStatus = query({
 export const list = query({
   args: {},
   handler: async (ctx) => {
+    await requireAdminOrThrow(ctx);
     return await ctx.db
       .query("mentorApplications")
       .order("desc")
@@ -89,6 +91,7 @@ export const list = query({
 export const listByStatus = query({
   args: { status: v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected")) },
   handler: async (ctx, args) => {
+    await requireAdminOrThrow(ctx);
     return await ctx.db
       .query("mentorApplications")
       .filter((q) => q.eq(q.field("status"), args.status))
@@ -101,6 +104,7 @@ export const listByStatus = query({
 export const getById = query({
   args: { id: v.id("mentorApplications") },
   handler: async (ctx, args) => {
+    await requireAdminOrThrow(ctx);
     return await ctx.db.get(args.id);
   },
 });
@@ -112,10 +116,22 @@ export const approve = mutation({
     reviewNotes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireAdminOrThrow(ctx);
+    const application = await ctx.db.get(args.id);
+    if (!application) throw new Error("Application not found");
+
     await ctx.db.patch(args.id, {
       status: "approved",
       reviewedAt: Date.now(),
       reviewNotes: args.reviewNotes,
+    });
+
+    await ctx.scheduler.runAfter(0, internal.emails.sendEmail, {
+      type: "mentor_application_approved",
+      data: {
+        to: application.email,
+        applicantName: application.fullName,
+      },
     });
 
     return { success: true };
@@ -129,10 +145,22 @@ export const reject = mutation({
     reviewNotes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireAdminOrThrow(ctx);
+    const application = await ctx.db.get(args.id);
+    if (!application) throw new Error("Application not found");
+
     await ctx.db.patch(args.id, {
       status: "rejected",
       reviewedAt: Date.now(),
       reviewNotes: args.reviewNotes,
+    });
+
+    await ctx.scheduler.runAfter(0, internal.emails.sendEmail, {
+      type: "mentor_application_rejected",
+      data: {
+        to: application.email,
+        applicantName: application.fullName,
+      },
     });
 
     return { success: true };
@@ -143,6 +171,7 @@ export const reject = mutation({
 export const deleteApplication = mutation({
   args: { id: v.id("mentorApplications") },
   handler: async (ctx, args) => {
+    await requireAdminOrThrow(ctx);
     await ctx.db.delete(args.id);
     return { success: true };
   },

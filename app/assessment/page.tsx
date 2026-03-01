@@ -26,7 +26,7 @@ export default function AssessmentIntroPage() {
           <div className="mb-10">
             <h2 className="text-3xl font-black uppercase mb-6">What to Expect</h2>
             <p className="text-lg font-bold text-gray-700 mb-4">
-              This 10-minute assessment will help you discover careers that match your interests, 
+              This 15-minute assessment will help you discover careers that match your interests, 
               skills, and goals. Answer honestly - there are no right or wrong answers!
             </p>
           </div>
@@ -38,10 +38,10 @@ export default function AssessmentIntroPage() {
                 <div className="p-2 bg-accent border-2 border-black">
                   <Target className="w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-black uppercase">15 Questions</h3>
+                <h3 className="text-xl font-black uppercase">25 Questions</h3>
               </div>
               <p className="text-sm font-bold text-gray-700">
-                Quick and focused questions about your interests and strengths
+                Research-backed questions covering interests, personality, and work values
               </p>
             </div>
 
@@ -50,7 +50,7 @@ export default function AssessmentIntroPage() {
                 <div className="p-2 bg-secondary border-2 border-black">
                   <Clock className="w-6 h-6 text-black" />
                 </div>
-                <h3 className="text-xl font-black uppercase text-black">10 Minutes</h3>
+                <h3 className="text-xl font-black uppercase text-black">15 Minutes</h3>
               </div>
               <p className="text-sm font-bold text-gray-700">
                 Complete at your own pace - you can pause and resume anytime
@@ -62,10 +62,10 @@ export default function AssessmentIntroPage() {
                 <div className="p-2 bg-primary border-2 border-black">
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-xl font-black uppercase">Top 5 Matches</h3>
+                <h3 className="text-xl font-black uppercase">Top 25 Matches</h3>
               </div>
               <p className="text-sm font-bold text-gray-700">
-                Get personalized career recommendations with match scores
+                Get personalized career recommendations with detailed match insights
               </p>
             </div>
           </div>

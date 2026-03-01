@@ -2,12 +2,24 @@
 
 import { useState } from 'react';
 import { Mail, MessageSquare, Send, Twitter, Linkedin, Github } from 'lucide-react';
+import { useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+
+type ContactCategory =
+  | 'general'
+  | 'mentor'
+  | 'partnership'
+  | 'school'
+  | 'student'
+  | 'feedback'
+  | 'bug';
 
 export default function ContactPage() {
+  const submitContact = useMutation(api.contact.submit);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    category: 'general',
+    category: 'general' as ContactCategory,
     message: '',
   });
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
@@ -15,12 +27,14 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('sending');
-    
-    // TODO: Implement actual form submission
-    setTimeout(() => {
+
+    try {
+      await submitContact(formData);
       setStatus('sent');
       setFormData({ name: '', email: '', category: 'general', message: '' });
-    }, 1000);
+    } catch (error) {
+      setStatus('error');
+    }
   };
 
   return (
@@ -83,7 +97,7 @@ export default function ContactPage() {
                   <select
                     id="category"
                     value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value as ContactCategory })}
                     className="w-full px-4 py-3 border-3 border-brutal-border focus:outline-none focus:ring-3 focus:ring-brutal-orange text-gray-900"
                   >
                     <option value="general">General Question</option>

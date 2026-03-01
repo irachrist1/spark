@@ -244,7 +244,7 @@ export const createBookingRequest = mutation({
 
     // Create booking request
     const chatId = await ctx.db.insert("careerChats", {
-      studentId: userId,
+      studentId: userId.toString(),
       professionalId: professional._id,
       careerId: args.careerId,
       scheduledAt: args.scheduledAt,
@@ -271,11 +271,23 @@ export const createBookingRequest = mutation({
       relatedUserId: userId,
       metadata: {
         bookingId: chatId,
-        studentId: userId,
+        studentId: userId.toString(),
         senderName: studentName,
         senderImage: studentImage,
         senderRole: 'student',
       },
+    });
+
+    await ctx.db.insert("analyticsEvents", {
+      eventName: "mentor_booking_requested",
+      actorUserId: userId,
+      actorRole: userDoc.role,
+      metadata: {
+        chatId,
+        professionalId: professional._id,
+        scheduledAt: args.scheduledAt,
+      },
+      createdAt: Date.now(),
     });
 
     return { chatId };
@@ -388,6 +400,17 @@ export const approveBooking = mutation({
         },
       });
     }
+
+    await ctx.db.insert("analyticsEvents", {
+      eventName: "mentor_booking_confirmed",
+      actorUserId: userId,
+      actorRole: "mentor",
+      metadata: {
+        chatId: args.chatId,
+        studentId: chat.studentId,
+      },
+      createdAt: Date.now(),
+    });
 
     return { success: true };
   },
@@ -575,13 +598,13 @@ export const getStudentBookings = query({
 
     let bookingsQuery = ctx.db
       .query("careerChats")
-      .withIndex("by_student", (q) => q.eq("studentId", userId));
+      .withIndex("by_student", (q) => q.eq("studentId", userId.toString()));
 
     if (args.status) {
       bookingsQuery = ctx.db
         .query("careerChats")
         .withIndex("by_student_and_status", (q) =>
-          q.eq("studentId", userId).eq("status", args.status!)
+          q.eq("studentId", userId.toString()).eq("status", args.status!)
         );
     }
 
@@ -1060,7 +1083,7 @@ export const getUnratedSessions = query({
     const completedChats = await ctx.db
       .query("careerChats")
       .withIndex("by_student_and_status", (q) =>
-        q.eq("studentId", user._id).eq("status", "completed")
+        q.eq("studentId", user._id.toString()).eq("status", "completed")
       )
       .collect();
 
@@ -1133,7 +1156,7 @@ export const getUnratedSessionsWithMentor = query({
     const completedChats = await ctx.db
       .query("careerChats")
       .withIndex("by_student_and_status", (q) =>
-        q.eq("studentId", user._id).eq("status", "completed")
+        q.eq("studentId", user._id.toString()).eq("status", "completed")
       )
       .collect();
 
@@ -1196,7 +1219,7 @@ export const getStudentRatingsForMentor = query({
     const completedChats = await ctx.db
       .query("careerChats")
       .withIndex("by_student_and_status", (q) =>
-        q.eq("studentId", user._id).eq("status", "completed")
+        q.eq("studentId", user._id.toString()).eq("status", "completed")
       )
       .collect();
 

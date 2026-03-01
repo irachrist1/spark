@@ -1,21 +1,11 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { internal } from "./_generated/api";
+import { requireAdminOrThrow } from "./users";
 
 // Helper to check if current user is admin
 async function requireAdmin(ctx: any) {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity) throw new Error("Not authenticated");
-
-  const user = await ctx.db
-    .query("users")
-    .withIndex("by_token", (q: any) => q.eq("tokenIdentifier", identity.tokenIdentifier))
-    .first();
-
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized: Admin access required");
-  }
-
-  return user;
+  return await requireAdminOrThrow(ctx);
 }
 
 // ============================================
@@ -310,7 +300,13 @@ export const approveApplication = mutation({
       reviewNotes: args.notes,
     });
 
-    // TODO: Send approval email to applicant
+    await ctx.scheduler.runAfter(0, internal.emails.sendEmail, {
+      type: "mentor_application_approved",
+      data: {
+        to: application.email,
+        applicantName: application.fullName,
+      },
+    });
 
     return { success: true, userId: user._id };
   },
@@ -339,7 +335,13 @@ export const rejectApplication = mutation({
       reviewNotes: args.notes,
     });
 
-    // TODO: Send rejection email to applicant
+    await ctx.scheduler.runAfter(0, internal.emails.sendEmail, {
+      type: "mentor_application_rejected",
+      data: {
+        to: application.email,
+        applicantName: application.fullName,
+      },
+    });
 
     return { success: true };
   },

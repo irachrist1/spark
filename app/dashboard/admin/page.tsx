@@ -5,10 +5,12 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { CheckCircle, XCircle, Clock, ExternalLink, Mail, Phone, Linkedin, Briefcase, Calendar } from 'lucide-react';
 import { Spinner } from '@/components/loading-skeleton';
+import { useRoleGuard } from '@/lib/hooks/useRoleGuard';
 
 type FilterStatus = 'all' | 'pending' | 'approved' | 'rejected';
 
 export default function AdminDashboardPage() {
+  useRoleGuard(['admin']);
   const [filter, setFilter] = useState<FilterStatus>('all');
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [reviewNotes, setReviewNotes] = useState('');

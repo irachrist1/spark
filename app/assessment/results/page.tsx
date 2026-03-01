@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Sparkles, ArrowRight, Bookmark, RotateCcw, ChevronDown } from 'lucide-react';
@@ -25,6 +25,7 @@ function AssessmentResultsContent() {
   const allResults = useQuery(api.assessments.getResults, user ? {} : "skip");
   const bookmarkedIds = useQuery(api.savedCareers.getIds, user ? {} : "skip");
   const toggleBookmark = useMutation(api.savedCareers.toggle);
+  const trackEvent = useMutation(api.analytics.trackEvent);
 
   // Get mentors for top matched careers (top 3)
   const topCareerIds: Id<"careers">[] = allResults && allResults.length > 0
@@ -83,6 +84,18 @@ function AssessmentResultsContent() {
   }
 
   const isLoading = authLoading || (user && allResults === undefined);
+  const currentResultId = currentResult?._id;
+
+  useEffect(() => {
+    if (!currentResultId) return;
+
+    void trackEvent({
+      eventName: "results_viewed",
+      metadata: {
+        resultId: currentResultId,
+      },
+    });
+  }, [currentResultId, trackEvent]);
 
   // Prepare display matches from Convex result
   const displayMatches = currentResult

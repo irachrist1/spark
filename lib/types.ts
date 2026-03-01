@@ -1,6 +1,6 @@
 // OpportunityMap Type Definitions
 
-export type UserRole = 'student' | 'mentor' | 'company' | 'partner';
+export type UserRole = 'student' | 'mentor' | 'educator' | 'company' | 'partner' | 'admin';
 
 export interface User {
   id: string;

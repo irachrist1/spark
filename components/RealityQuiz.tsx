@@ -71,8 +71,13 @@ export function RealityQuiz({ quiz, careerId, careerTitle }: RealityQuizProps) {
   const [results, setResults] = useState<any>(null);
 
   const saveResult = useMutation(api.quizResults.saveResult);
+  const trackEvent = useMutation(api.analytics.trackEvent);
 
   const handleStart = () => {
+    void trackEvent({
+      eventName: "reality_quiz_started",
+      metadata: { careerId, careerTitle },
+    });
     setStarted(true);
   };
 
