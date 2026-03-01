@@ -23,7 +23,8 @@ export default function SignInPage() {
           routing="path"
           path="/sign-in"
           signUpUrl="/sign-up"
-          redirectUrl="/auth-redirect"
+          forceRedirectUrl="/auth-redirect"
+          fallbackRedirectUrl="/auth-redirect"
         />
       </div>
     </div>

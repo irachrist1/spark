@@ -19,7 +19,8 @@ export default function MentorSignUpPage() {
               card: "bg-white shadow-lg rounded-lg",
             },
           }}
-          afterSignUpUrl="/onboarding/auto-role?role=mentor"
+          forceRedirectUrl="/onboarding/auto-role?role=mentor"
+          fallbackRedirectUrl="/onboarding/auto-role?role=mentor"
           signInUrl="/sign-in"
         />
       </div>

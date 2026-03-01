@@ -22,7 +22,8 @@ export default function StudentSignUpPage() {
               card: "bg-white shadow-lg rounded-lg",
             },
           }}
-          afterSignUpUrl="/onboarding/auto-role?role=student"
+          forceRedirectUrl="/onboarding/auto-role?role=student"
+          fallbackRedirectUrl="/onboarding/auto-role?role=student"
           signInUrl="/sign-in"
         />
       </div>

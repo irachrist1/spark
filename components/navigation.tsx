@@ -62,18 +62,30 @@ export default function Navigation() {
   };
 
   const navLinks = getNavLinks();
+  const dashboardPath = userRole === 'admin' ? '/admin' : getDashboardPath(userRole as any);
+  const signedInLogoHref = convexUser ? dashboardPath : '/auth-redirect';
 
   return (
     <nav className="sticky top-0 z-50 bg-white border-b-4 border-brutal-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 bg-brutal-orange border-3 border-brutal-border shadow-brutal-sm group-hover:shadow-brutal transition-all flex items-center justify-center">
-              <span className="text-white font-black text-xl">O</span>
-            </div>
-            <span className="text-lg sm:text-xl font-black text-brutal-text">OpportunityMap</span>
-          </Link>
+          <SignedOut>
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="w-10 h-10 bg-brutal-orange border-3 border-brutal-border shadow-brutal-sm group-hover:shadow-brutal transition-all flex items-center justify-center">
+                <span className="text-white font-black text-xl">O</span>
+              </div>
+              <span className="text-lg sm:text-xl font-black text-brutal-text">OpportunityMap</span>
+            </Link>
+          </SignedOut>
+          <SignedIn>
+            <Link href={signedInLogoHref} className="flex items-center gap-2 group">
+              <div className="w-10 h-10 bg-brutal-orange border-3 border-brutal-border shadow-brutal-sm group-hover:shadow-brutal transition-all flex items-center justify-center">
+                <span className="text-white font-black text-xl">O</span>
+              </div>
+              <span className="text-lg sm:text-xl font-black text-brutal-text">OpportunityMap</span>
+            </Link>
+          </SignedIn>
 
           {/* Desktop Navigation */}
           <div className="hidden xl:flex items-center gap-2">

@@ -19,7 +19,8 @@ export default function EducatorSignUpPage() {
               card: "bg-white shadow-lg rounded-lg",
             },
           }}
-          afterSignUpUrl="/onboarding/auto-role?role=educator"
+          forceRedirectUrl="/onboarding/auto-role?role=educator"
+          fallbackRedirectUrl="/onboarding/auto-role?role=educator"
           signInUrl="/sign-in"
         />
       </div>
